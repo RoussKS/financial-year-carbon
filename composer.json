@@ -1,6 +1,6 @@
 {
     "name": "roussks/financial-year-carbon",
-    "description": "This is the Nestbot Carbon Adapter implementation of roussks/financial-year library.",
+    "description": "This is the Carbon Adapter implementation of roussks/financial-year library.",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -25,12 +25,12 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.1",
-        "nesbot/carbon": "^2.19",
-        "roussks/financial-year": "^1.0.0"
+        "php": "^7.1",
+        "nesbot/carbon": "^1.26.3 || ^2.0",
+        "roussks/financial-year": "1.1.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.8",
-        "phpunit/phpunit": ">=7"
+        "phpunit/phpunit": "^7 || ^8"
     }
 }
