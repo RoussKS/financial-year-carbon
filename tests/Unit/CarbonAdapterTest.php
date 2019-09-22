@@ -93,9 +93,6 @@ class CarbonAdapterTest extends TestCase
         // Set the opposite of original weeks.
         $carbonAdapter->setFyWeeks(!$fiftyThreeWeeks);
 
-        var_dump($fyEndDate->toDateTimeString());
-        var_dump($carbonAdapter->getFyEndDate()->toDateTimeString());
-
         $this->assertNotSame($fyEndDate->toDateTimeString(), $carbonAdapter->getFyEndDate()->toDateTimeString());
     }
 
@@ -1065,7 +1062,7 @@ class CarbonAdapterTest extends TestCase
         );
 
         // Expect fifty third week range: 2019-12-31 - 2020-01-06
-        $fiftyThreeWeek = $carbonAdapter->getFiftyThirdWeek();
+        $fiftyThreeWeek = $carbonAdapter->getFiftyThirdBusinessWeek();
 
         $this->assertEquals(
             '2019-12-31 00:00:00',
@@ -1110,7 +1107,7 @@ class CarbonAdapterTest extends TestCase
      * @throws ConfigException
      * @throws Exception
      */
-    public function assertGetDateObjectThrowsExceptionForInvalidString(): void
+    public function assertGetDateObjectThrowsExceptionForInvalidDateType(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
@@ -1119,7 +1116,7 @@ class CarbonAdapterTest extends TestCase
 
         new CarbonAdapter(
             $this->fyTypes[array_rand($this->fyTypes,1)],
-            $this->faker->text,
+            $this->faker->randomNumber(4), // Send random number, as string is covered by Carbon itself.
             $this->faker->boolean
         );
     }

@@ -360,18 +360,19 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @return CarbonPeriod|CarbonImmutable[]
      *
      * @throws  Exception
-     * @throws  ConfigException
      */
-    public function getFiftyThirdWeek(): Traversable
+    public function getFiftyThirdBusinessWeek(): Traversable
     {
         return $this->getBusinessWeekById(53);
     }
 
     /**
-     * Get the start date of the next financial year.
+     * {@inheritdoc}
      *
      * @return CarbonImmutable
      */
@@ -418,6 +419,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
         }
 
         // First check if we have received the object relevant to the adapter.
+        // This can be either a Carbon or CarbonImmutable object.
         // If we did, return the required CarbonImmutable.
         if (isset($className) && $className === 'Carbon\Carbon') {
             return $date->toImmutable()->startOfDay();
@@ -428,6 +430,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
         }
 
         // Then if a string was passed as param, create the CarbonImmutable.
+        // Carbon has an internal InvalidArgumentException if the variable's string format is incorrect.
         if (is_string($date)) {
             /** @var CarbonImmutable $carbon */
             $carbon = CarbonImmutable::createFromFormat('Y-m-d', $date);
