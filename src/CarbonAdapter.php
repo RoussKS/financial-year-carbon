@@ -411,19 +411,14 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
      */
     protected function getDateObject($date): CarbonImmutable
     {
-        // Get classname of date param if object, else false if not an object
-        if (is_object($date)) {
-            $className = get_class($date);
-        }
-
         // First check if we have received the object relevant to the adapter.
         // This can be either a Carbon or CarbonImmutable object.
         // If we did, return the required CarbonImmutable.
-        if (isset($className) && $className === 'Carbon\Carbon') {
+        if ($date instanceof Carbon) {
             return $date->toImmutable()->startOfDay();
         }
 
-        if (isset($className) && $className === 'Carbon\CarbonImmutable') {
+        if ($date instanceof CarbonImmutable) {
             return $date->startOfDay();
         }
 

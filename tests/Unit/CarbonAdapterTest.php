@@ -1184,11 +1184,9 @@ class CarbonAdapterTest extends TestCase
     /**
      * Generate a random date excluding the ones disallowed for calendar type financial year.
      *
-     * @return bool|Carbon
-     *
-     * @throws \Exception
+     * @return Carbon
      */
-    protected function getRandomDateExcludingDisallowedFyCalendarTypeDates()
+    protected function getRandomDateExcludingDisallowedFyCalendarTypeDates(): Carbon
     {
         $dateTime = $this->faker->dateTime;
 
@@ -1196,7 +1194,7 @@ class CarbonAdapterTest extends TestCase
         $dateTime->setDate(
             (int) $dateTime->format('Y'),
             (int) $dateTime->format('m'),
-            random_int(1, 28)
+            $this->faker->numberBetween(1, 28)
         );
 
         return Carbon::instance($dateTime);
