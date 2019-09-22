@@ -8,7 +8,7 @@ use Faker\Factory;
 use Faker\Generator;
 use PHPUnit\Framework\TestCase;
 use RoussKS\FinancialYear\AbstractAdapter;
-use RoussKS\FinancialYear\Carbon\CarbonAdapter;
+use RoussKS\FinancialYear\CarbonAdapter;
 use RoussKS\FinancialYear\Exceptions\ConfigException;
 use RoussKS\FinancialYear\Exceptions\Exception;
 
