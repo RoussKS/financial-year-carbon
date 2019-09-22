@@ -1,13 +1,11 @@
 <?php
 
-namespace RoussKS\FinancialYear\Carbon;
+namespace RoussKS\FinancialYear;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
 use DateTimeInterface;
-use RoussKS\FinancialYear\AbstractAdapter;
-use RoussKS\FinancialYear\AdapterInterface;
 use RoussKS\FinancialYear\Exceptions\ConfigException;
 use RoussKS\FinancialYear\Exceptions\Exception;
 use Traversable;

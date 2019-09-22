@@ -8,7 +8,7 @@ use Faker\Factory;
 use Faker\Generator;
 use PHPUnit\Framework\TestCase;
 use RoussKS\FinancialYear\AbstractAdapter;
-use RoussKS\FinancialYear\Carbon\CarbonAdapter;
+use RoussKS\FinancialYear\CarbonAdapter;
 use RoussKS\FinancialYear\Exceptions\ConfigException;
 use RoussKS\FinancialYear\Exceptions\Exception;
 
@@ -107,7 +107,7 @@ class CarbonAdapterTest extends TestCase
      */
     public function assertGetFyStartDateReturnsCarbonImmutableObject(): void
     {
-        $type = $this->fyTypes[array_rand($this->fyTypes,1)];
+        $type = $this->faker->randomElement($this->fyTypes);
         $carbon = Carbon::instance($this->faker->dateTime);
 
         $carbonAdapter = new CarbonAdapter(
@@ -124,8 +124,6 @@ class CarbonAdapterTest extends TestCase
     /**
      * @test
      *
-     * Invalid date is 29/02 of any available year
-     *
      * @return void
      *
      * @throws ConfigException
@@ -141,17 +139,15 @@ class CarbonAdapterTest extends TestCase
         // Get a random Carbon instance with an invalid date.
         $dateTime = $this->faker->dateTime;
 
-        $disallowedDates = ['29', '30', '31'];
-
+        // Random Year, random disallowed date. Fix to May as we know it includes all 3 dates.
         $dateTime->setDate(
             (int) $dateTime->format('Y'),
-            (int) $dateTime->format('m'),
-            $disallowedDates[array_rand($disallowedDates, 1)]
+            5,
+            $this->faker->randomElement([29, 30, 31])
         );
 
         $randomCarbon = Carbon::instance($dateTime);
 
-        // Random Year, random disallowed date. Fix to May as we know it includes all 3 dates.
         new CarbonAdapter(
             AbstractAdapter::TYPE_CALENDAR,
             $randomCarbon,
@@ -170,7 +166,7 @@ class CarbonAdapterTest extends TestCase
      */
     public function assertSetFyStartDateSetsNewFyEndDateIfFyStartDateChanges(): void
     {
-        $type = $this->fyTypes[array_rand($this->fyTypes,1)];
+        $type = $this->faker->randomElement($this->fyTypes);
         $carbon = Carbon::instance($this->faker->dateTime);
 
         $carbonAdapter = new CarbonAdapter(
@@ -204,7 +200,7 @@ class CarbonAdapterTest extends TestCase
      */
     public function assertGetFyEndDateReturnsDateTimeImmutableObject(): void
     {
-        $type = $this->fyTypes[array_rand($this->fyTypes,1)];
+        $type = $this->faker->randomElement($this->fyTypes);
         $carbon = Carbon::instance($this->faker->dateTime);
 
         $carbonAdapter = new CarbonAdapter(
@@ -558,7 +554,7 @@ class CarbonAdapterTest extends TestCase
 
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
-            $this->fyTypes[array_rand($this->fyTypes,1)],
+            $this->faker->randomElement($this->fyTypes),
             '2019-01-01',
             $this->faker->boolean
         );
@@ -581,7 +577,7 @@ class CarbonAdapterTest extends TestCase
 
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
-            $this->fyTypes[array_rand($this->fyTypes,1)],
+            $this->faker->randomElement($this->fyTypes),
             '2019-01-01',
             $this->faker->boolean
         );
@@ -602,7 +598,7 @@ class CarbonAdapterTest extends TestCase
     {
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
-            $this->fyTypes[array_rand($this->fyTypes,1)],
+            $this->faker->randomElement($this->fyTypes),
             '2019-01-01',
             $this->faker->boolean
         );
@@ -690,7 +686,7 @@ class CarbonAdapterTest extends TestCase
      */
     public function assertGetFirstDateOfPeriodByIdReturnsFinancialYearStartDateForFirstPeriod(): void
     {
-        $type = $this->fyTypes[array_rand($this->fyTypes,1)];
+        $type = $this->faker->randomElement($this->fyTypes);
         $carbon = Carbon::instance($this->faker->dateTime);
 
         $carbonAdapter = new CarbonAdapter(
@@ -761,7 +757,7 @@ class CarbonAdapterTest extends TestCase
      */
     public function assertGetLastDateOfPeriodByIdReturnsFinancialYearEndDateForLastPeriod(): void
     {
-        $type = $this->fyTypes[array_rand($this->fyTypes,1)];
+        $type = $this->faker->randomElement($this->fyTypes);
         $carbon = Carbon::instance($this->faker->dateTime);
 
         $carbonAdapter = new CarbonAdapter(
@@ -1085,7 +1081,7 @@ class CarbonAdapterTest extends TestCase
      */
     public function assertGetDateObjectAcceptsImmutableParameter(): void
     {
-        $type = $this->fyTypes[array_rand($this->fyTypes,1)];
+        $type = $this->faker->randomElement($this->fyTypes);
         $carbon = CarbonImmutable::instance($this->faker->dateTime);
 
         $carbonAdapter = new CarbonAdapter(
@@ -1115,7 +1111,7 @@ class CarbonAdapterTest extends TestCase
         );
 
         new CarbonAdapter(
-            $this->fyTypes[array_rand($this->fyTypes,1)],
+            $this->faker->randomElement($this->fyTypes),
             $this->faker->randomNumber(4), // Send random number, as string is covered by Carbon itself.
             $this->faker->boolean
         );
@@ -1194,18 +1190,13 @@ class CarbonAdapterTest extends TestCase
      */
     protected function getRandomDateExcludingDisallowedFyCalendarTypeDates()
     {
-        $disallowedFyCalendarTypeDates = ['29', '30', '31'];
-
-        do {
-            $randomDateExcludingDisallowed = random_int(1, 31);
-        } while (in_array($randomDateExcludingDisallowed, $disallowedFyCalendarTypeDates, false));
-
         $dateTime = $this->faker->dateTime;
 
+        // Random Year, Random month, random date in range 1-28.
         $dateTime->setDate(
             (int) $dateTime->format('Y'),
             (int) $dateTime->format('m'),
-            $randomDateExcludingDisallowed
+            random_int(1, 28)
         );
 
         return Carbon::instance($dateTime);
