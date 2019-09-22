@@ -1,15 +1,24 @@
 <?php
 
-namespace RoussKS\FinancialYear;
+namespace RoussKS\FinancialYear\Carbon;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
 use DateTimeInterface;
+use RoussKS\FinancialYear\AbstractAdapter;
+use RoussKS\FinancialYear\AdapterInterface;
 use RoussKS\FinancialYear\Exceptions\ConfigException;
 use RoussKS\FinancialYear\Exceptions\Exception;
 use Traversable;
 
+/**
+ * Implementation of Carbon\Carbon FinancialYear Adapter
+ *
+ * Class CarbonAdapter
+ *
+ * @package RoussKS\FinancialYear\Carbon
+ */
 class CarbonAdapter extends AbstractAdapter implements AdapterInterface
 {
     /**
@@ -41,6 +50,25 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
         $this->setFyStartDate($fyStartDate);
 
         $this->setFyEndDate();
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Extend parent class in order to recalculate end date if the business year weeks change.
+     *
+     * @throws Exception
+     */
+    public function setFyWeeks($fiftyThreeWeeks = false): void
+    {
+        $originalFyWeeks = $this->fyWeeks;
+
+        parent::setFyWeeks($fiftyThreeWeeks);
+
+        // Reset the financial year end date according to the weeks setting.
+        if ($originalFyWeeks !== null && $originalFyWeeks !== $this->fyWeeks) {
+            $this->setFyEndDate();
+        }
     }
 
     /**
@@ -105,9 +133,9 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function getPeriodById(int $id): Traversable
     {
-        return CarbonPeriod::since($this->getFirstDateOfPeriodById($id))
+        return CarbonPeriod::since($this->getFirstDateOfPeriodById($id), true)
                            ->day()
-                           ->until($this->getLastDateOfPeriodById($id));
+                           ->until($this->getLastDateOfPeriodById($id), true);
     }
 
     /**
@@ -119,9 +147,9 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function getBusinessWeekById(int $id): Traversable
     {
-        return CarbonPeriod::since($this->getFirstDateOfBusinessWeekById($id))
+        return CarbonPeriod::since($this->getFirstDateOfBusinessWeekById($id), true)
                            ->day()
-                           ->until($this->getLastDateOfBusinessWeekById($id));
+                           ->until($this->getLastDateOfBusinessWeekById($id), true);
     }
 
     /**
@@ -133,17 +161,17 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function getPeriodIdByDate($date): int
     {
-        $dateTime = $this->getDateObject($date);
+        $carbon = $this->getDateObject($date);
 
         // Instantly throw exception for a date that's out of range of the current financial year.
         // Do this to avoid the resource intensive loop.
-        if (!$dateTime->between($this->fyStartDate, $this->fyEndDate)) {
+        if (!$carbon->between($this->fyStartDate, $this->fyEndDate)) {
             throw new Exception('The requested date is out of range of the current financial year');
         }
 
         for ($id = 1; $id <= $this->fyPeriods; $id++) {
             // If the date is between the start and the end date of the period, get the period's id.
-            if ($dateTime->between($this->getFirstDateOfPeriodById($id), $this->getLastDateOfPeriodById($id))) {
+            if ($carbon->between($this->getFirstDateOfPeriodById($id), $this->getLastDateOfPeriodById($id))) {
                 return $id;
             }
         }
@@ -162,18 +190,18 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function getBusinessWeekIdIdByDate($date): int
     {
-        $dateTime = $this->getDateObject($date);
+        $carbon = $this->getDateObject($date);
 
         // Instantly throw exception for a date that's out of range of the current financial year.
         // Do this to avoid the resource intensive loop.
-        if (!$dateTime->between($this->fyStartDate, $this->fyEndDate)) {
+        if (!$carbon->between($this->fyStartDate, $this->fyEndDate)) {
             throw new Exception('The requested date is out of range of the current financial year');
         }
 
         for ($id = 1; $id <= $this->fyWeeks; $id++) {
 
             if (
-                $dateTime->between(
+                $carbon->between(
                     $this->getFirstDateOfBusinessWeekById($id),
                     $this->getLastDateOfBusinessWeekById($id)
                 )
@@ -332,18 +360,19 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @return CarbonPeriod|CarbonImmutable[]
      *
      * @throws  Exception
-     * @throws  ConfigException
      */
-    public function getFiftyThirdWeek(): Traversable
+    public function getFiftyThirdBusinessWeek(): Traversable
     {
         return $this->getBusinessWeekById(53);
     }
 
     /**
-     * Get the start date of the next financial year.
+     * {@inheritdoc}
      *
      * @return CarbonImmutable
      */
@@ -390,7 +419,8 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
         }
 
         // First check if we have received the object relevant to the adapter.
-        // If we did, return the required DateTimeImmutable.
+        // This can be either a Carbon or CarbonImmutable object.
+        // If we did, return the required CarbonImmutable.
         if (isset($className) && $className === 'Carbon\Carbon') {
             return $date->toImmutable()->startOfDay();
         }
@@ -399,23 +429,19 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
             return $date->startOfDay();
         }
 
-        // Then if a string was passed as param, create the DateTimeImmutable.
+        // Then if a string was passed as param, create the CarbonImmutable.
+        // Carbon has an internal InvalidArgumentException if the variable's string format is incorrect.
         if (is_string($date)) {
-            $dateArray = explode('-', $date);
-
-            if (count($dateArray) !== 3) {
-                throw new Exception('Invalid date format. Needs to be ISO-8601 string or Carbon/CarbonImmutable object');
-            }
-
-            $dateTime = CarbonImmutable::createFromDate($dateArray[0], $dateArray[1], $dateArray[2]);
+            /** @var CarbonImmutable $carbon */
+            $carbon = CarbonImmutable::createFromFormat('Y-m-d', $date);
         }
 
         // Validation that the datetime object was created.
-        if (!isset($dateTime) || !$dateTime) {
+        if (!isset($carbon) || !$carbon) {
             throw new Exception('Invalid date format. Needs to be ISO-8601 string or Carbon/CarbonImmutable object');
         }
 
         // Set date object to start of the day and return.
-        return $dateTime->startOfDay();
+        return $carbon->startOfDay();
     }
 }
