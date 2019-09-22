@@ -1,6 +1,6 @@
 # \RoussKS\FinancialYear\CarbonAdapter - Carbon Adapter for RoussKS Financial Year PHP Library
 
-[![Latest Version](https://img.shields.io/github/release/RoussKS/financial-year-carbon.svg?style=flat-square)](https://github.com/RoussKS/financial-year-carbon/releases)
+[![Latest Version](https://img.shields.io/github/release/RoussKS/financial-year-carbon.svg?style=round-square)](https://github.com/RoussKS/financial-year-carbon/releases)
 [![Build Status](https://travis-ci.org/RoussKS/financial-year-carbon.svg?branch=master)](https://travis-ci.org/RoussKS/financial-year-carbon)
 [![codecov](https://codecov.io/gh/RoussKS/financial-year-carbon/branch/master/graph/badge.svg)](https://codecov.io/gh/RoussKS/financial-year-carbon)
 [![GitHub license](https://img.shields.io/github/license/RoussKS/financial-year-carbon.svg)](https://github.com/RoussKS/financial-year-carbon/blob/master/LICENSE)
