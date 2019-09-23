@@ -100,7 +100,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
             in_array($this->fyStartDate->day, $disallowedFyCalendarTypeDates, false)
         ) {
             $this->throwConfigurationException(
-                'This library does not support start dates for 29, 30, 31 of each month for calendar type financial year'
+                'This library does not support 29, 30, 31 as start dates of a month for calendar type financial year.'
             );
         }
 
@@ -164,7 +164,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
         // Instantly throw exception for a date that's out of range of the current financial year.
         // Do this to avoid the resource intensive loop.
         if (!$carbon->between($this->fyStartDate, $this->fyEndDate)) {
-            throw new Exception('The requested date is out of range of the current financial year');
+            throw new Exception('The requested date is out of range of the current financial year.');
         }
 
         for ($id = 1; $id <= $this->fyPeriods; $id++) {
@@ -176,7 +176,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
 
         // We can never reach this stage.
         // However, added for keeping the IDEs happy of non returned value.
-        throw new Exception('A period could not be found for the requested date');
+        throw new Exception('A period could not be found for the requested date.');
     }
 
     /**
@@ -193,7 +193,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
         // Instantly throw exception for a date that's out of range of the current financial year.
         // Do this to avoid the resource intensive loop.
         if (!$carbon->between($this->fyStartDate, $this->fyEndDate)) {
-            throw new Exception('The requested date is out of range of the current financial year');
+            throw new Exception('The requested date is out of range of the current financial year.');
         }
 
         for ($id = 1; $id <= $this->fyWeeks; $id++) {
@@ -210,7 +210,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
 
         // We can never reach this stage.
         // However, added for keeping the IDEs happy of non returned value.
-        throw new Exception('A business week could not be found for the specified date');
+        throw new Exception('A business week could not be found for the specified date.');
     }
 
     /**
@@ -401,7 +401,7 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * Get a date object from the provided param.
+     * Get a CarbonImmutable object from the provided parameter.
      *
      * @param  Carbon|CarbonImmutable|string $date
      *
@@ -411,35 +411,30 @@ class CarbonAdapter extends AbstractAdapter implements AdapterInterface
      */
     protected function getDateObject($date): CarbonImmutable
     {
-        // Get classname of date param if object, else false if not an object
-        if (is_object($date)) {
-            $className = get_class($date);
-        }
-
         // First check if we have received the object relevant to the adapter.
         // This can be either a Carbon or CarbonImmutable object.
         // If we did, return the required CarbonImmutable.
-        if (isset($className) && $className === 'Carbon\Carbon') {
+        if ($date instanceof Carbon) {
             return $date->toImmutable()->startOfDay();
         }
 
-        if (isset($className) && $className === 'Carbon\CarbonImmutable') {
+        if ($date instanceof CarbonImmutable) {
             return $date->startOfDay();
         }
 
         // Then if a string was passed as param, create the CarbonImmutable.
         // Carbon has an internal InvalidArgumentException if the variable's string format is incorrect.
+        // Otherwise it is properly created.
         if (is_string($date)) {
             /** @var CarbonImmutable $carbon */
             $carbon = CarbonImmutable::createFromFormat('Y-m-d', $date);
+
+            return $carbon->startOfDay();
         }
 
-        // Validation that the datetime object was created.
-        if (!isset($carbon) || !$carbon) {
-            throw new Exception('Invalid date format. Needs to be ISO-8601 string or Carbon/CarbonImmutable object');
-        }
-
-        // Set date object to start of the day and return.
-        return $carbon->startOfDay();
+        // Any different scenario than the above should throw an Exception.
+        throw new Exception(
+            'Invalid date format. Not a valid ISO-8601 date string or Carbon/CarbonImmutable object.'
+        );
     }
 }

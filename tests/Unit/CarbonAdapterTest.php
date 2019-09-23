@@ -133,7 +133,7 @@ class CarbonAdapterTest extends TestCase
     {
         $this->expectException(ConfigException::class);
         $this->expectExceptionMessage(
-            'This library does not support start dates for 29, 30, 31 of each month for calendar type financial year'
+            'This library does not support 29, 30, 31 as start dates of a month for calendar type financial year.'
         );
 
         // Get a random Carbon instance with an invalid date.
@@ -393,7 +393,7 @@ class CarbonAdapterTest extends TestCase
     public function assertGetBusinessWeekByIdThrowsExceptionOnNonBusinessTypeFinancialYearType(): void
     {
         $this->expectException(ConfigException::class);
-        $this->expectExceptionMessage('Week id is not applicable for non business type financial year');
+        $this->expectExceptionMessage('Week id is not applicable for non business type financial year.');
 
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
@@ -550,7 +550,7 @@ class CarbonAdapterTest extends TestCase
     public function assertGetPeriodIdByDateThrowsExceptionOnDateBeforeFinancialYear(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The requested date is out of range of the current financial year');
+        $this->expectExceptionMessage('The requested date is out of range of the current financial year.');
 
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
@@ -573,7 +573,7 @@ class CarbonAdapterTest extends TestCase
     public function assertGetPeriodIdByDateThrowsExceptionOnDateAfterFinancialYear(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The requested date is out of range of the current financial year');
+        $this->expectExceptionMessage('The requested date is out of range of the current financial year.');
 
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
@@ -618,7 +618,7 @@ class CarbonAdapterTest extends TestCase
     public function assertGetBusinessWeekIdByDateThrowsExceptionOnDateBeforeFinancialYear(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The requested date is out of range of the current financial year');
+        $this->expectExceptionMessage('The requested date is out of range of the current financial year.');
 
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
@@ -641,7 +641,7 @@ class CarbonAdapterTest extends TestCase
     public function assertGetBusinessWeekIdByDateThrowsExceptionOnDateAfterFinancialYear(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The requested date is out of range of the current financial year');
+        $this->expectExceptionMessage('The requested date is out of range of the current financial year.');
 
         // Financial Year starts at 2019-01-01
         $carbonAdapter = new CarbonAdapter(
@@ -1107,7 +1107,7 @@ class CarbonAdapterTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'Invalid date format. Needs to be ISO-8601 string or Carbon/CarbonImmutable object'
+            'Invalid date format. Not a valid ISO-8601 date string or Carbon/CarbonImmutable object.'
         );
 
         new CarbonAdapter(
@@ -1143,7 +1143,7 @@ class CarbonAdapterTest extends TestCase
         } while (in_array($randomPeriodId, $fyPeriodsArray, true));
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('There is no period with id: ' . $randomPeriodId);
+        $this->expectExceptionMessage('There is no period with id: ' . $randomPeriodId . '.');
 
         // A Calendar Type Financial Year has 12 periods only.
         $fy->getPeriodById($randomPeriodId);
@@ -1175,7 +1175,7 @@ class CarbonAdapterTest extends TestCase
         } while (in_array($randomPeriodId, $fyPeriodsArray, true));
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('There is no period with id: ' . $randomPeriodId);
+        $this->expectExceptionMessage('There is no period with id: ' . $randomPeriodId . '.');
 
         // A Calendar Type Financial Year has 12 periods only.
         $fy->getPeriodById($randomPeriodId);
@@ -1184,11 +1184,9 @@ class CarbonAdapterTest extends TestCase
     /**
      * Generate a random date excluding the ones disallowed for calendar type financial year.
      *
-     * @return bool|Carbon
-     *
-     * @throws \Exception
+     * @return Carbon
      */
-    protected function getRandomDateExcludingDisallowedFyCalendarTypeDates()
+    protected function getRandomDateExcludingDisallowedFyCalendarTypeDates(): Carbon
     {
         $dateTime = $this->faker->dateTime;
 
@@ -1196,7 +1194,7 @@ class CarbonAdapterTest extends TestCase
         $dateTime->setDate(
             (int) $dateTime->format('Y'),
             (int) $dateTime->format('m'),
-            random_int(1, 28)
+            $this->faker->numberBetween(1, 28)
         );
 
         return Carbon::instance($dateTime);
